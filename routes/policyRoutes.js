@@ -4,7 +4,7 @@ const policyController = require('../controllers/policyController');
 
 router.get('/', policyController.getPolicies);
 router.post('/', policyController.createPolicy);
-router.put('/:id', policyController.updatePolicy);
+router.put('/', policyController.updatePolicies); // Ensure this line is correct
 router.delete('/:id', policyController.deletePolicy);
 
 module.exports = router;

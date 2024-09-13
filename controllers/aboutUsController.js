@@ -3,7 +3,11 @@ const AboutUs = require('../models/AboutUs');
 exports.getAboutUs = async (req, res) => {
     try {
         const aboutUs = await AboutUs.findOne();
-        res.json(aboutUs);
+        if (aboutUs) {
+            res.json({ content: aboutUs.content });
+        } else {
+            res.json({ content: '' });
+        }
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -21,7 +25,7 @@ exports.updateAboutUs = async (req, res) => {
         aboutUs.content = content;
         await aboutUs.save();
 
-        res.status(201).json(aboutUs);
+        res.status(201).json({ content: aboutUs.content });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }

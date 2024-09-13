@@ -25,21 +25,27 @@ exports.createPolicy = async (req, res) => {
     }
 };
 
-exports.updatePolicy = async (req, res) => {
-    const { id } = req.params;
-    const { name, content } = req.body;
+exports.updatePolicies = async (req, res) => {
+    const { policies } = req.body;
 
     try {
-        const policy = await Policy.findById(id);
-        if (!policy) {
-            return res.status(404).json({ message: 'Policy not found' });
+        for (const policyData of policies) {
+            const { _id, name, content } = policyData;
+            if (_id) {
+                // Update existing policy
+                const policy = await Policy.findById(_id);
+                if (policy) {
+                    policy.name = name;
+                    policy.content = content;
+                    await policy.save();
+                }
+            } else {
+                // Create new policy
+                const newPolicy = new Policy({ name, content });
+                await newPolicy.save();
+            }
         }
-
-        policy.name = name;
-        policy.content = content;
-
-        const updatedPolicy = await policy.save();
-        res.status(200).json(updatedPolicy);
+        res.status(200).json({ message: 'Policies updated successfully' });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
