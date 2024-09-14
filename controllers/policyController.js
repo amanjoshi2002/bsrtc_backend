@@ -29,6 +29,16 @@ exports.updatePolicies = async (req, res) => {
     const { policies } = req.body;
 
     try {
+        const existingPolicies = await Policy.find();
+        const existingPolicyIds = existingPolicies.map(policy => policy._id.toString());
+
+        const updatedPolicyIds = policies.map(policy => policy._id).filter(id => id);
+
+        // Delete policies that are not in the updated list
+        const policiesToDelete = existingPolicyIds.filter(id => !updatedPolicyIds.includes(id));
+        await Policy.deleteMany({ _id: { $in: policiesToDelete } });
+
+        // Update existing policies and create new ones
         for (const policyData of policies) {
             const { _id, name, content } = policyData;
             if (_id) {
