@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
 
 exports.authenticate = (req, res, next) => {
-    const token = req.header('Authorization').replace('Bearer ', '');
+    const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
     }
@@ -14,4 +14,13 @@ exports.authenticate = (req, res, next) => {
     } catch (err) {
         res.status(401).json({ message: 'Token is not valid' });
     }
+};
+
+exports.adminAuth = (req, res, next) => {
+    exports.authenticate(req, res, () => {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+        next();
+    });
 };

@@ -7,6 +7,8 @@ const policyRoutes = require('./routes/policyRoutes');
 const aboutUsRoutes = require('./routes/aboutUsRoutes');
 const authRoutes = require('./routes/authRoutes');
 const popularRouteRoutes = require('./routes/popularRouteRoutes');
+const tenderRoutes = require('./routes/tenderRoutes');
+const galleryRoutes = require('./routes/galleryRoutes');
 const config = require('config');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -37,6 +39,8 @@ app.use('/api/policies', policyRoutes);
 app.use('/api/about-us', aboutUsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/popular-routes', popularRouteRoutes);
+app.use('/api/tenders', tenderRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
