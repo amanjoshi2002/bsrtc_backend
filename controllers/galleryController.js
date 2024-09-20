@@ -76,12 +76,18 @@ exports.deletePhoto = async (req, res) => {
 
         // Delete the photo file
         if (gallery.photo) {
-            fs.unlinkSync(path.join(__dirname, '..', gallery.photo));
+            const filePath = path.join(__dirname, '..', gallery.photo);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            } else {
+                console.error('File not found:', filePath);
+            }
         }
 
-        await gallery.remove();
+        await Gallery.findByIdAndDelete(id);
         res.json({ message: 'Photo deleted successfully' });
     } catch (err) {
+        console.error('Error deleting photo:', err);
         res.status(500).json({ message: err.message });
     }
 };

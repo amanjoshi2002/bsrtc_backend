@@ -3,10 +3,10 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
 
 exports.signup = async (req, res) => {
-    const { username, password, role } = req.body;
+    const { email, password, role } = req.body;
 
     try {
-        const user = new User({ username, password, role });
+        const user = new User({ email, password, role });
         await user.save();
 
         // Generate JWT token
@@ -19,12 +19,12 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
         if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         const token = jwt.sign({ id: user._id, role: user.role }, jwtSecret, { expiresIn: '1h' });
@@ -45,7 +45,7 @@ exports.getProfile = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     const { id } = req.params;
-    const { username, role } = req.body;
+    const { email, role } = req.body;
 
     try {
         const user = await User.findById(id);
@@ -53,7 +53,7 @@ exports.updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user.username = username || user.username;
+        user.email = email || user.email;
         user.role = role || user.role;
 
         await user.save();
