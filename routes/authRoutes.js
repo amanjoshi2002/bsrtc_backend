@@ -8,6 +8,7 @@ router.post('/login', authController.login);
 router.get('/profile', authenticate, authController.getProfile);
 
 // Admin routes
+router.get('/users', adminAuth, authController.getAllUsers); // Add this line
 router.put('/user/:id', adminAuth, authController.updateUser);
 router.delete('/user/:id', adminAuth, authController.deleteUser);
 

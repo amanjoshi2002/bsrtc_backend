@@ -1,7 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
-const contactRoutes = require('./routes/contactRoutes');
+const contactInfoRoutes = require('./routes/contactInfoRoutes');
+const divisionRoutes = require('./routes/divisionRoutes');
+
+const contactRoutes = require('./routes/contactInfoRoutes');
 const phoneDirectoryRoutes = require('./routes/phoneDirectoryRoutes');
 const policyRoutes = require('./routes/policyRoutes');
 const aboutUsRoutes = require('./routes/aboutUsRoutes');
@@ -47,7 +50,8 @@ app.use('/api/popular-routes', popularRouteRoutes);
 app.use('/api/tenders', tenderRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/tourist-destinations', touristDestinationRoutes);
-
+app.use('/api/divisions', divisionRoutes);
+app.use('/api/contact-info', contactInfoRoutes);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

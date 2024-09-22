@@ -18,6 +18,7 @@ exports.authenticate = (req, res, next) => {
 
 exports.adminAuth = (req, res, next) => {
     exports.authenticate(req, res, () => {
+        console.log('User role:', req.user.role); // Debugging line
         if (req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Access denied' });
         }

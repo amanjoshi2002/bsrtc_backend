@@ -3,10 +3,10 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
 
 exports.signup = async (req, res) => {
-    const { email, password, role } = req.body;
+    const { name, phoneNumber, email, password } = req.body; // Removed role from destructuring
 
     try {
-        const user = new User({ email, password, role });
+        const user = new User({ name, phoneNumber, email, password }); // Role will default to 'user'
         await user.save();
 
         // Generate JWT token
@@ -43,9 +43,18 @@ exports.getProfile = async (req, res) => {
     }
 };
 
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 exports.updateUser = async (req, res) => {
     const { id } = req.params;
-    const { email, role } = req.body;
+    const { name, phoneNumber, email, role } = req.body;
 
     try {
         const user = await User.findById(id);
@@ -53,6 +62,8 @@ exports.updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        user.name = name || user.name;
+        user.phoneNumber = phoneNumber || user.phoneNumber;
         user.email = email || user.email;
         user.role = role || user.role;
 
@@ -67,14 +78,17 @@ exports.deleteUser = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const user = await User.findById(id);
+        console.log(`Attempting to delete user with ID: ${id}`); // Debugging line
+        const user = await User.findByIdAndDelete(id);
         if (!user) {
+            console.log('User not found'); // Debugging line
             return res.status(404).json({ message: 'User not found' });
         }
 
-        await user.remove();
+        console.log('User deleted successfully'); // Debugging line
         res.json({ message: 'User deleted successfully' });
     } catch (err) {
+        console.error('Error deleting user:', err); // Debugging line
         res.status(500).json({ message: err.message });
     }
 };

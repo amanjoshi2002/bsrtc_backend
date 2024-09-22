@@ -56,7 +56,12 @@ exports.updateTender = async (req, res) => {
         if (pdf) {
             // Delete the old PDF file
             if (tender.pdf) {
-                fs.unlinkSync(path.join(__dirname, '..', tender.pdf));
+                const filePath = path.join(__dirname, '..', tender.pdf);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                } else {
+                    console.error('File not found:', filePath);
+                }
             }
             tender.pdf = pdf;
         }
@@ -79,12 +84,18 @@ exports.deleteTender = async (req, res) => {
 
         // Delete the PDF file
         if (tender.pdf) {
-            fs.unlinkSync(path.join(__dirname, '..', tender.pdf));
+            const filePath = path.join(__dirname, '..', tender.pdf);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            } else {
+                console.error('File not found:', filePath);
+            }
         }
 
-        await tender.remove();
+        await Tender.findByIdAndDelete(id);
         res.json({ message: 'Tender deleted successfully' });
     } catch (err) {
+        console.error('Error deleting tender:', err);
         res.status(500).json({ message: err.message });
     }
 };
