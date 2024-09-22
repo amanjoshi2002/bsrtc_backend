@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const faqController = require('../controllers/faqController');
+const { authenticate, adminAuth } = require('../middleware/authMiddleware');
 
 router.get('/', faqController.getFAQs);
 router.get('/:id', faqController.getFAQById);
-router.post('/', faqController.createFAQ);
-router.put('/:id', faqController.updateFAQ);
-router.delete('/:id', faqController.deleteFAQ);
+router.post('/', adminAuth, faqController.createFAQ);
+router.put('/:id', adminAuth, faqController.updateFAQ);
+router.delete('/:id', adminAuth, faqController.deleteFAQ);
 
 module.exports = router;
