@@ -34,13 +34,13 @@ if (!fs.existsSync(uploadsDir)) {
 
 // CORS configuration
 const corsOptions = {
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN.replace(/\/$/, ''), // Remove trailing slash if present
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    optionsSuccessStatus: 200
-};
+  };
 
+  app.use(cors(corsOptions));
 // Middleware
 app.use(morgan('dev'));
 app.use(bodyParser.json());
