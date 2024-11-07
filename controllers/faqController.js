@@ -1,10 +1,10 @@
 const FAQ = require('../models/FAQ');
 
 exports.createFAQ = async (req, res) => {
-    const { question, answer } = req.body;
+    const { questionEn, answerEn, questionHi, answerHi } = req.body;
 
     try {
-        const faq = new FAQ({ question, answer });
+        const faq = new FAQ({ questionEn, answerEn, questionHi, answerHi });
         await faq.save();
         res.status(201).json(faq);
     } catch (err) {
@@ -13,9 +13,15 @@ exports.createFAQ = async (req, res) => {
 };
 
 exports.getFAQs = async (req, res) => {
+    const { lang } = req.params;
+
     try {
         const faqs = await FAQ.find();
-        res.json(faqs);
+        const response = faqs.map(faq => ({
+            question: lang === 'hi' ? faq.questionHi : faq.questionEn,
+            answer: lang === 'hi' ? faq.answerHi : faq.answerEn
+        }));
+        res.json(response);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -23,13 +29,17 @@ exports.getFAQs = async (req, res) => {
 
 exports.getFAQById = async (req, res) => {
     const { id } = req.params;
+    const { lang } = req.query;
 
     try {
         const faq = await FAQ.findById(id);
         if (!faq) {
             return res.status(404).json({ message: 'FAQ not found' });
         }
-        res.json(faq);
+        res.json({
+            question: lang === 'hi' ? faq.questionHi : faq.questionEn,
+            answer: lang === 'hi' ? faq.answerHi : faq.answerEn
+        });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -37,7 +47,7 @@ exports.getFAQById = async (req, res) => {
 
 exports.updateFAQ = async (req, res) => {
     const { id } = req.params;
-    const { question, answer } = req.body;
+    const { questionEn, answerEn, questionHi, answerHi } = req.body;
 
     try {
         const faq = await FAQ.findById(id);
@@ -45,8 +55,10 @@ exports.updateFAQ = async (req, res) => {
             return res.status(404).json({ message: 'FAQ not found' });
         }
 
-        faq.question = question || faq.question;
-        faq.answer = answer || faq.answer;
+        faq.questionEn = questionEn || faq.questionEn;
+        faq.answerEn = answerEn || faq.answerEn;
+        faq.questionHi = questionHi || faq.questionHi;
+        faq.answerHi = answerHi || faq.answerHi;
 
         await faq.save();
         res.json(faq);

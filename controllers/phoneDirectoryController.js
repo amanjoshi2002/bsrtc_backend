@@ -1,19 +1,32 @@
 const PhoneDirectoryDivision = require('../models/PhoneDirectory');
 
 exports.getDivisions = async (req, res) => {
+    const { lang } = req.params;
+
     try {
         const divisions = await PhoneDirectoryDivision.find();
-        res.json(divisions);
+        const response = divisions.map(division => ({
+            name: lang === 'hi' ? division.nameHi : division.nameEn,
+            officers: division.officers.map(officer => ({
+                name: lang === 'hi' ? officer.nameHi : officer.nameEn,
+                designation: lang === 'hi' ? officer.designationHi : officer.designationEn,
+                office: lang === 'hi' ? officer.officeHi : officer.officeEn,
+                phoneNumber: officer.phoneNumber,
+                email: officer.email
+            }))
+        }));
+        res.json(response);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };
 
 exports.createDivision = async (req, res) => {
-    const { name, officers } = req.body;
+    const { nameEn, nameHi, officers } = req.body;
 
     const division = new PhoneDirectoryDivision({
-        name,
+        nameEn,
+        nameHi,
         officers
     });
 
@@ -40,18 +53,19 @@ exports.updateDivisions = async (req, res) => {
 
         // Update existing divisions and create new ones
         for (const divisionData of divisions) {
-            const { _id, name, officers } = divisionData;
+            const { _id, nameEn, nameHi, officers } = divisionData;
             if (_id) {
                 // Update existing division
                 const division = await PhoneDirectoryDivision.findById(_id);
                 if (division) {
-                    division.name = name;
+                    division.nameEn = nameEn;
+                    division.nameHi = nameHi;
                     division.officers = officers;
                     await division.save();
                 }
             } else {
                 // Create new division
-                const newDivision = new PhoneDirectoryDivision({ name, officers });
+                const newDivision = new PhoneDirectoryDivision({ nameEn, nameHi, officers });
                 await newDivision.save();
             }
         }

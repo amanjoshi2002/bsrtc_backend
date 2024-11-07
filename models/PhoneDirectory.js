@@ -1,15 +1,19 @@
 const mongoose = require('mongoose');
 
 const officerSchema = new mongoose.Schema({
-    name: String,
-    designation: String,
-    office: String,
+    nameEn: String,
+    nameHi: String,
+    designationEn: String,
+    designationHi: String,
+    officeEn: String,
+    officeHi: String,
     phoneNumber: String,
     email: String
 });
 
 const phoneDirectoryDivisionSchema = new mongoose.Schema({
-    name: String,
+    nameEn: String,
+    nameHi: String,
     officers: [officerSchema]
 });
 

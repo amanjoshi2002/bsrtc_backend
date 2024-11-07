@@ -1,20 +1,30 @@
 const Policy = require('../models/Policy');
 
 exports.getPolicies = async (req, res) => {
+    const { lang } = req.params;
+
     try {
         const policies = await Policy.find();
-        res.json(policies);
+        const response = policies.map(policy => {
+            return {
+                name: lang === 'hi' ? policy.nameHi : policy.nameEn,
+                content: lang === 'hi' ? policy.contentHi : policy.contentEn
+            };
+        });
+        res.json(response);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };
 
 exports.createPolicy = async (req, res) => {
-    const { name, content } = req.body;
+    const { nameEn, nameHi, contentEn, contentHi } = req.body;
 
     const policy = new Policy({
-        name,
-        content
+        nameEn,
+        nameHi,
+        contentEn,
+        contentHi
     });
 
     try {
@@ -40,18 +50,20 @@ exports.updatePolicies = async (req, res) => {
 
         // Update existing policies and create new ones
         for (const policyData of policies) {
-            const { _id, name, content } = policyData;
+            const { _id, nameEn, nameHi, contentEn, contentHi } = policyData;
             if (_id) {
                 // Update existing policy
                 const policy = await Policy.findById(_id);
                 if (policy) {
-                    policy.name = name;
-                    policy.content = content;
+                    policy.nameEn = nameEn;
+                    policy.nameHi = nameHi;
+                    policy.contentEn = contentEn;
+                    policy.contentHi = contentHi;
                     await policy.save();
                 }
             } else {
                 // Create new policy
-                const newPolicy = new Policy({ name, content });
+                const newPolicy = new Policy({ nameEn, nameHi, contentEn, contentHi });
                 await newPolicy.save();
             }
         }

@@ -4,9 +4,19 @@ exports.getAboutUs = async (req, res) => {
     try {
         const aboutUs = await AboutUs.findOne();
         if (aboutUs) {
-            res.json({ content: aboutUs.content });
+            res.json({
+                aboutUsEn: aboutUs.aboutUsEn || '',
+                visionEn: aboutUs.visionEn || '',
+                missionEn: aboutUs.missionEn || '',
+                aboutUsHi: aboutUs.aboutUsHi || '',
+                visionHi: aboutUs.visionHi || '',
+                missionHi: aboutUs.missionHi || ''
+            });
         } else {
-            res.json({ content: '' });
+            res.json({
+                aboutUsEn: '', visionEn: '', missionEn: '',
+                aboutUsHi: '', visionHi: '', missionHi: ''
+            });
         }
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -14,7 +24,10 @@ exports.getAboutUs = async (req, res) => {
 };
 
 exports.updateAboutUs = async (req, res) => {
-    const { content } = req.body;
+    const { 
+        aboutUsEn, visionEn, missionEn,
+        aboutUsHi, visionHi, missionHi 
+    } = req.body;
 
     try {
         let aboutUs = await AboutUs.findOne();
@@ -22,10 +35,15 @@ exports.updateAboutUs = async (req, res) => {
             aboutUs = new AboutUs();
         }
 
-        aboutUs.content = content;
-        await aboutUs.save();
+        aboutUs.aboutUsEn = aboutUsEn;
+        aboutUs.visionEn = visionEn;
+        aboutUs.missionEn = missionEn;
+        aboutUs.aboutUsHi = aboutUsHi;
+        aboutUs.visionHi = visionHi;
+        aboutUs.missionHi = missionHi;
 
-        res.status(201).json({ content: aboutUs.content });
+        await aboutUs.save();
+        res.status(201).json(aboutUs);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }

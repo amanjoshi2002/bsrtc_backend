@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 
 const faqSchema = new mongoose.Schema({
-    question: { type: String, required: true },
-    answer: { type: String, required: true }
+    questionEn: { type: String, required: true },
+    answerEn: { type: String, required: true },
+    questionHi: { type: String, required: true },
+    answerHi: { type: String, required: true }
 });
 
 module.exports = mongoose.model('FAQ', faqSchema);
