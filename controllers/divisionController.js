@@ -1,10 +1,17 @@
 const Division = require('../models/Division');
 
 exports.createDivision = async (req, res) => {
-    const { name, personInCharge, phoneNumber, email } = req.body;
+    const { nameEn, nameHi, personInChargeEn, personInChargeHi, phoneNumber, email } = req.body;
 
     try {
-        const division = new Division({ name, personInCharge, phoneNumber, email });
+        const division = new Division({ 
+            nameEn, 
+            nameHi, 
+            personInChargeEn, 
+            personInChargeHi, 
+            phoneNumber, 
+            email 
+        });
         await division.save();
         res.status(201).json(division);
     } catch (err) {
@@ -13,23 +20,39 @@ exports.createDivision = async (req, res) => {
 };
 
 exports.getDivisions = async (req, res) => {
+    const { lang } = req.params;
     try {
         const divisions = await Division.find();
-        res.json(divisions);
+        const response = divisions.map(division => ({
+            id: division._id,
+            name: lang === 'hi' ? division.nameHi : division.nameEn,
+            personInCharge: lang === 'hi' ? division.personInChargeHi : division.personInChargeEn,
+            phoneNumber: division.phoneNumber,
+            email: division.email
+        }));
+        res.json(response);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };
 
 exports.getDivisionById = async (req, res) => {
-    const { id } = req.params;
+    const { id, lang } = req.params;
 
     try {
         const division = await Division.findById(id);
         if (!division) {
             return res.status(404).json({ message: 'Division not found' });
         }
-        res.json(division);
+        
+        const response = {
+            id: division._id,
+            name: lang === 'hi' ? division.nameHi : division.nameEn,
+            personInCharge: lang === 'hi' ? division.personInChargeHi : division.personInChargeEn,
+            phoneNumber: division.phoneNumber,
+            email: division.email
+        };
+        res.json(response);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -37,7 +60,11 @@ exports.getDivisionById = async (req, res) => {
 
 exports.updateDivision = async (req, res) => {
     const { id } = req.params;
-    const { name, personInCharge, phoneNumber, email } = req.body;
+    const { 
+        nameEn, nameHi, 
+        personInChargeEn, personInChargeHi, 
+        phoneNumber, email 
+    } = req.body;
 
     try {
         const division = await Division.findById(id);
@@ -45,8 +72,10 @@ exports.updateDivision = async (req, res) => {
             return res.status(404).json({ message: 'Division not found' });
         }
 
-        division.name = name || division.name;
-        division.personInCharge = personInCharge || division.personInCharge;
+        division.nameEn = nameEn || division.nameEn;
+        division.nameHi = nameHi || division.nameHi;
+        division.personInChargeEn = personInChargeEn || division.personInChargeEn;
+        division.personInChargeHi = personInChargeHi || division.personInChargeHi;
         division.phoneNumber = phoneNumber || division.phoneNumber;
         division.email = email || division.email;
 

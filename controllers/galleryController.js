@@ -3,11 +3,11 @@ const path = require('path');
 const fs = require('fs');
 
 exports.createPhoto = async (req, res) => {
-    const { name } = req.body;
+    const { name, type } = req.body;
     const photo = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
-        const gallery = new Gallery({ name, photo });
+        const gallery = new Gallery({ name, type, photo });
         await gallery.save();
         res.status(201).json(gallery);
     } catch (err) {
@@ -16,9 +16,21 @@ exports.createPhoto = async (req, res) => {
 };
 
 exports.getPhotos = async (req, res) => {
+    const { type } = req.query;
     try {
-        const photos = await Gallery.find();
-        res.json(photos);
+        let query = {};
+        if (type) {
+            query.type = type;
+        }
+
+        const photos = await Gallery.find(query);
+        const response = photos.map(photo => ({
+            id: photo._id,
+            name: photo.name,
+            type: photo.type,
+            photo: photo.photo
+        }));
+        res.json(response);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -32,7 +44,12 @@ exports.getPhotoById = async (req, res) => {
         if (!photo) {
             return res.status(404).json({ message: 'Photo not found' });
         }
-        res.json(photo);
+        res.json({
+            id: photo._id,
+            name: photo.name,
+            type: photo.type,
+            photo: photo.photo
+        });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -40,7 +57,7 @@ exports.getPhotoById = async (req, res) => {
 
 exports.updatePhoto = async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, type } = req.body;
     const photo = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
@@ -50,10 +67,15 @@ exports.updatePhoto = async (req, res) => {
         }
 
         gallery.name = name || gallery.name;
+        gallery.type = type || gallery.type;
+        
         if (photo) {
             // Delete the old photo file
             if (gallery.photo) {
-                fs.unlinkSync(path.join(__dirname, '..', gallery.photo));
+                const filePath = path.join(__dirname, '..', gallery.photo);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
             }
             gallery.photo = photo;
         }
