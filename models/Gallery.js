@@ -5,7 +5,7 @@ const gallerySchema = new mongoose.Schema({
     type: { 
         type: String, 
         required: true, 
-        enum: ['EV', 'petrol', 'diesel'] 
+        enum: ['AC', 'Volvo', 'EV'] 
     },
     photo: { type: String, required: true }
 });
