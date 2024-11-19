@@ -15,6 +15,7 @@ const touristDestinationRoutes = require('./routes/touristDestinationRoutes');
 const faqRoutes = require('./routes/faqRoutes');
 const privacyRoutes = require('./routes/privacyRoutes');
 const termsRoutes = require('./routes/termsRoutes');
+const depotRoutes = require('./routes/depotRoutes');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
@@ -52,6 +53,7 @@ app.use('/uploads', express.static(uploadsDir));
 // Routes
 app.use('/api/contact', contactRoutes);
 app.use('/api/phone-directory', phoneDirectoryRoutes);
+app.use('/api/depots', depotRoutes);
 app.use('/api/policies', policyRoutes);
 app.use('/api/about-us', aboutUsRoutes);
 app.use('/api/auth', authRoutes);
