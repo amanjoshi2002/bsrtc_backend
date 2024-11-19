@@ -13,6 +13,8 @@ const tenderRoutes = require('./routes/tenderRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const touristDestinationRoutes = require('./routes/touristDestinationRoutes');
 const faqRoutes = require('./routes/faqRoutes');
+const privacyRoutes = require('./routes/privacyRoutes');
+const termsRoutes = require('./routes/termsRoutes');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
@@ -60,6 +62,8 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/tourist-destinations', touristDestinationRoutes);
 app.use('/api/divisions', divisionRoutes);
 app.use('/api/contact-info', contactInfoRoutes);
+app.use('/api/privacy', privacyRoutes);
+app.use('/api/terms', termsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
