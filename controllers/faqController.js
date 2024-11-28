@@ -13,33 +13,9 @@ exports.createFAQ = async (req, res) => {
 };
 
 exports.getFAQs = async (req, res) => {
-    const { lang } = req.params;
-
     try {
         const faqs = await FAQ.find();
-        const response = faqs.map(faq => ({
-            question: lang === 'hi' ? faq.questionHi : faq.questionEn,
-            answer: lang === 'hi' ? faq.answerHi : faq.answerEn
-        }));
-        res.json(response);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
-exports.getFAQById = async (req, res) => {
-    const { id } = req.params;
-    const { lang } = req.query;
-
-    try {
-        const faq = await FAQ.findById(id);
-        if (!faq) {
-            return res.status(404).json({ message: 'FAQ not found' });
-        }
-        res.json({
-            question: lang === 'hi' ? faq.questionHi : faq.questionEn,
-            answer: lang === 'hi' ? faq.answerHi : faq.answerEn
-        });
+        res.json(faqs);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
