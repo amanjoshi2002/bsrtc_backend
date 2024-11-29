@@ -21,7 +21,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-
+const newsRoutes = require('./routes/newsRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -54,6 +54,7 @@ app.use('/uploads', express.static(uploadsDir));
 // Routes
 app.use('/api/contact', contactRoutes);
 app.use('/api/phone-directory', phoneDirectoryRoutes);
+app.use('/api/news', newsRoutes);
 app.use('/api/depots', depotRoutes);
 app.use('/api/policies', policyRoutes);
 app.use('/api/about-us', aboutUsRoutes);
