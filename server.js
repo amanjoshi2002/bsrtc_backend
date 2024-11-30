@@ -17,6 +17,9 @@ const privacyRoutes = require('./routes/privacyRoutes');
 const termsRoutes = require('./routes/termsRoutes');
 const depotRoutes = require('./routes/depotRoutes');
 const aboutProfileRoutes = require('./routes/aboutProfileRoutes');
+const flashNewsRoutes = require('./routes/flashNewsRoutes'); // Adjust the path as necessary
+
+
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
@@ -68,7 +71,10 @@ app.use('/api/divisions', divisionRoutes);
 app.use('/api/contact-info', contactInfoRoutes);
 app.use('/api/privacy', privacyRoutes);
 app.use('/api/terms', termsRoutes);
+app.use('/api/flash-news', flashNewsRoutes);
+
 app.use('/api/about-profile', aboutProfileRoutes);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
