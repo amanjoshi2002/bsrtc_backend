@@ -1,5 +1,5 @@
 // controllers/flashNewsController.js
-const FlashNews = require('../models/flashNewsModel');
+const FlashNews = require('../models/FlashNewsModel');
 
 exports.createFlashNews = async (req, res) => {
     try {
