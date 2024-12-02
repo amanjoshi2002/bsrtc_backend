@@ -19,8 +19,8 @@ const depotRoutes = require('./routes/depotRoutes');
 const aboutProfileRoutes = require('./routes/aboutProfileRoutes');
 const galleryEventRoutes = require('./routes/galleryEventRoutes');
 const flashNewsRoutes = require('./routes/flashNewsRoutes'); // Adjust the path as necessary
-
-
+const cancellationPolicyRoutes = require('./routes/cancellationPolicyRoutes');
+const bookingPolicyRoutes = require('./routes/bookingPolicyRoutes');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
@@ -68,12 +68,14 @@ app.use('/api/popular-routes', popularRouteRoutes);
 app.use('/api/tenders', tenderRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/tourist-destinations', touristDestinationRoutes);
+app.use('/api/booking-policy', bookingPolicyRoutes);
 app.use('/api/divisions', divisionRoutes);
 app.use('/api/contact-info', contactInfoRoutes);
 app.use('/api/privacy', privacyRoutes);
 app.use('/api/terms', termsRoutes);
 app.use('/api/flash-news', flashNewsRoutes);
 app.use('/api/gallery-events', galleryEventRoutes);
+app.use('/api/cancellation-policy', cancellationPolicyRoutes);
 
 app.use('/api/about-profile', aboutProfileRoutes);
 
