@@ -77,7 +77,7 @@ exports.deletePopularRoute = async (req, res) => {
             return res.status(404).json({ message: 'Route not found' });
         }
 
-        await route.remove();
+        await PopularRoute.deleteOne({ _id: id });
         res.status(200).json({ message: 'Route deleted' });
     } catch (err) {
         console.log('Error Deleting Route:', err.message);
