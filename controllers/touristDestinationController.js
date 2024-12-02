@@ -3,11 +3,11 @@ const path = require('path');
 const fs = require('fs');
 
 exports.createDestination = async (req, res) => {
-    const { name } = req.body;
+    const { name, description } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
-        const destination = new TouristDestination({ name, image });
+        const destination = new TouristDestination({ name, image, description });
         await destination.save();
         res.status(201).json(destination);
     } catch (err) {
@@ -40,7 +40,7 @@ exports.getDestinationById = async (req, res) => {
 
 exports.updateDestination = async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, description } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
@@ -50,6 +50,7 @@ exports.updateDestination = async (req, res) => {
         }
 
         destination.name = name || destination.name;
+        destination.description = description || destination.description;
         if (image) {
             // Delete the old image file
             if (destination.image) {

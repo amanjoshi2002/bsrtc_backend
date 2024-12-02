@@ -17,6 +17,7 @@ const privacyRoutes = require('./routes/privacyRoutes');
 const termsRoutes = require('./routes/termsRoutes');
 const depotRoutes = require('./routes/depotRoutes');
 const aboutProfileRoutes = require('./routes/aboutProfileRoutes');
+const galleryEventRoutes = require('./routes/galleryEventRoutes');
 const flashNewsRoutes = require('./routes/flashNewsRoutes'); // Adjust the path as necessary
 
 
@@ -72,6 +73,7 @@ app.use('/api/contact-info', contactInfoRoutes);
 app.use('/api/privacy', privacyRoutes);
 app.use('/api/terms', termsRoutes);
 app.use('/api/flash-news', flashNewsRoutes);
+app.use('/api/gallery-events', galleryEventRoutes);
 
 app.use('/api/about-profile', aboutProfileRoutes);
 
