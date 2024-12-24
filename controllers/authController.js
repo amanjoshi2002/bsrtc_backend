@@ -1,6 +1,9 @@
+require('dotenv').config();
+
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
+const axios = require('axios');
 
 exports.signup = async (req, res) => {
     const { name, phoneNumber, email, password } = req.body; // Removed role from destructuring
@@ -19,13 +22,45 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, captchaToken } = req.body;
+
+    // Verify CAPTCHA
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const captchaVerificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaToken}`;
 
     try {
+        const captchaResponse = await axios.post(captchaVerificationUrl);
+        if (!captchaResponse.data.success) {
+            return res.status(400).json({ message: 'CAPTCHA verification failed' });
+        }
+
         const user = await User.findOne({ email });
-        if (!user || !(await user.comparePassword(password))) {
+        if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
+
+        // Check if the account is locked
+        if (user.isLocked()) {
+            return res.status(403).json({ message: 'Account is locked. Try again later.' });
+        }
+
+        // Check password
+        if (!(await user.comparePassword(password))) {
+            user.failedLoginAttempts += 1;
+
+            // Lock the account if too many failed attempts
+            if (user.failedLoginAttempts >= 5) {
+                user.lockUntil = Date.now() + 30 * 60 * 1000; // Lock for 30 minutes
+            }
+
+            await user.save();
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Reset failed login attempts on successful login
+        user.failedLoginAttempts = 0;
+        user.lockUntil = undefined;
+        await user.save();
 
         const token = jwt.sign({ id: user._id, role: user.role }, jwtSecret, { expiresIn: '1h' });
         res.json({ token });

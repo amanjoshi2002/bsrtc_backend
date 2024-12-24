@@ -6,7 +6,9 @@ const userSchema = new mongoose.Schema({
     phoneNumber: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' } // Default role is 'user'
+    role: { type: String, enum: ['user', 'admin'], default: 'user' }, // Default role is 'user'
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date }
 });
 
 // Hash the password before saving the user
@@ -22,6 +24,11 @@ userSchema.pre('save', async function (next) {
 // Compare password method
 userSchema.methods.comparePassword = function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Method to check if the account is currently locked
+userSchema.methods.isLocked = function() {
+    return this.lockUntil && this.lockUntil > Date.now();
 };
 
 module.exports = mongoose.model('User', userSchema);
