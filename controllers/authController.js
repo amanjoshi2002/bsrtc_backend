@@ -4,6 +4,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 
 exports.signup = async (req, res) => {
     const { name, phoneNumber, email, password } = req.body; // Removed role from destructuring
@@ -12,10 +13,34 @@ exports.signup = async (req, res) => {
         const user = new User({ name, phoneNumber, email, password }); // Role will default to 'user'
         await user.save();
 
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+        user.otp = otp;
+        user.otpExpires = Date.now() + 15 * 60 * 1000; // OTP valid for 15 minutes
+        await user.save();
+
+        // Send OTP via email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER, // Your email
+                pass: process.env.EMAIL_PASS // Your email password
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your OTP Code',
+            text: `Your OTP code is ${otp}. It is valid for 15 minutes.`
+        };
+
+        await transporter.sendMail(mailOptions);
+
         // Generate JWT token
         const token = jwt.sign({ id: user._id, role: user.role }, jwtSecret, { expiresIn: '1h' });
 
-        res.status(201).json({ message: 'User created successfully', token });
+        res.status(201).json({ message: 'User created successfully. Please check your email for the OTP.', token });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -37,6 +62,11 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Check if the user is verified
+        if (!user.otp) { // Assuming otp is undefined if the user is verified
+            return res.status(403).json({ message: 'Email not verified. Please verify your email before logging in.' });
         }
 
         // Check if the account is locked
@@ -124,6 +154,25 @@ exports.deleteUser = async (req, res) => {
         res.json({ message: 'User deleted successfully' });
     } catch (err) {
         console.error('Error deleting user:', err); // Debugging line
+        res.status(500).json({ message: err.message });
+    }
+};
+exports.verifyOtp = async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user || user.otp !== otp || user.otpExpires < Date.now()) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        // OTP is valid, proceed with further actions (e.g., mark user as verified)
+        user.otp = undefined; // Clear OTP
+        user.otpExpires = undefined; // Clear OTP expiration
+        await user.save();
+
+        res.json({ message: 'OTP verified successfully' });
+    } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };

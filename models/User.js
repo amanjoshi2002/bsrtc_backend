@@ -8,7 +8,10 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, enum: ['user', 'admin'], default: 'user' }, // Default role is 'user'
     failedLoginAttempts: { type: Number, default: 0 },
-    lockUntil: { type: Date }
+    lockUntil: { type: Date },
+    otp: { type: String }, // Field to store OTP
+    otpExpires: { type: Date }, // Field to store OTP expiration time
+    isVerified: { type: Boolean, default: false } // Field to track verification status
 });
 
 // Hash the password before saving the user
