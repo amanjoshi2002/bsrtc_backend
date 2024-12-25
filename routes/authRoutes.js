@@ -12,6 +12,7 @@ router.get('/users', adminAuth, authController.getAllUsers); // Add this line
 router.put('/user/:id', adminAuth, authController.updateUser);
 router.delete('/user/:id', adminAuth, authController.deleteUser);
 
+router.post('/resend-otp',authController.resendOtp)
 router.post('/verify-otp', authController.verifyOtp);
 
 module.exports = router;

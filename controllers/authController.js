@@ -10,7 +10,22 @@ exports.signup = async (req, res) => {
     const { name, phoneNumber, email, password } = req.body; // Removed role from destructuring
 
     try {
-        const user = new User({ name, phoneNumber, email, password }); // Role will default to 'user'
+        // Check for existing user with the same email
+        const existingUserByEmail = await User.findOne({ email });
+        if (existingUserByEmail) {
+            return res.status(400).json({ message: 'Email is already in use. Please use a different email.' });
+        }
+
+        // Check for existing user with the same phone number
+        const existingUserByPhone = await User.findOne({ phoneNumber });
+        if (existingUserByPhone) {
+            return res.status(400).json({ message: 'Phone number is already in use. Please use a different phone number.' });
+        }
+
+        // Create a new user if no duplicates found
+        const user = new User({ name, phoneNumber, email, password });
+
+        // Save user to database
         await user.save();
 
         // Generate OTP
@@ -42,6 +57,10 @@ exports.signup = async (req, res) => {
 
         res.status(201).json({ message: 'User created successfully. Please check your email for the OTP.', token });
     } catch (err) {
+        if (err.code === 11000) { // Duplicate key error (if email or phone number already exists)
+            const field = Object.keys(err.keyPattern)[0];
+            return res.status(400).json({ message: `Duplicate ${field} found. Please use a different ${field}.` });
+        }
         res.status(400).json({ message: err.message });
     }
 };
@@ -175,5 +194,45 @@ exports.verifyOtp = async (req, res) => {
         res.json({ message: 'OTP verified successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+};
+
+
+exports.resendOtp = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate a new OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpires = Date.now() + 15 * 60 * 1000; // OTP valid for 15 minutes
+        await user.save();
+
+        // Send the new OTP via email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your New OTP Code',
+            text: `Your new OTP code is ${otp}. It is valid for 15 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'New OTP has been sent to your email.' });
+    } catch (err) {
+        console.error('Error resending OTP:', err);
+        res.status(500).json({ message: 'Error resending OTP. Please try again.' });
     }
 };
