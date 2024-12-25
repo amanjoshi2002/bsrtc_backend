@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
         }
 
         // Check if the user is verified
-        if (!user.otp) { // Assuming otp is undefined if the user is verified
+        if (!user.isVerified) { // Check if the user is verified
             return res.status(403).json({ message: 'Email not verified. Please verify your email before logging in.' });
         }
 
@@ -169,6 +169,7 @@ exports.verifyOtp = async (req, res) => {
         // OTP is valid, proceed with further actions (e.g., mark user as verified)
         user.otp = undefined; // Clear OTP
         user.otpExpires = undefined; // Clear OTP expiration
+        user.isVerified = true; // Set isVerified to true
         await user.save();
 
         res.json({ message: 'OTP verified successfully' });
